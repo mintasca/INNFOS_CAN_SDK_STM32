@@ -2,8 +2,8 @@
   ******************************************************************************
   * @文	件 ： SCA_API.h
   * @作	者 ： INNFOS Software Team
-  * @版	本 ： V1.5.0
-  * @日	期 ： 2019.8.20
+  * @版	本 ： V1.5.1
+  * @日	期 ： 2019.09.10
   * @摘	要 ： SCA 控制接口层
   ******************************************************************************/ 
 
@@ -72,6 +72,7 @@ FAST类函数使用说明：
 */
 
 /***************控制相关******************/
+void lookupActuators(CAN_Handler_t* canPort);
 void setupActuators(uint8_t id, CAN_Handler_t* can);
 void resetController(uint8_t id);
 void enableAllActuators(void);

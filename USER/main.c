@@ -2,8 +2,8 @@
   ******************************************************************************
   * @文	件 ： main.c
   * @作	者 ： INNFOS Software Team
-  * @版	本 ： V1.5.0
-  * @日	期 ： 2019.8.20
+  * @版	本 ： V1.5.1
+  * @日	期 ： 2019.9.10
   * @摘	要 ： 主程序入口
   ******************************************************************************/
   
@@ -57,12 +57,13 @@ static void Log()
 {
 	printf("\r\n欢迎使用 INNFOS SCA 驱动测试！\r\n");
 	printf("详细通信协议参见 INNFOS WIKI ！\r\n");
-	printf("发送 1 初始化SCA控制器 ！\r\n");
-	printf("发送 2 进入位置归零测试程序 ！\r\n");
-	printf("发送 3 进入正反转测试程序 ！\r\n");
-	printf("发送 4 进入高低速测试程序 ！\r\n");
-	printf("发送 5 将执行器关机 ！\r\n");
-	printf("发送 6 显示帮助信息 ！\r\n");
+	printf("发送 1 轮询总线上的执行器ID ！\r\n");
+	printf("发送 2 使用默认ID初始化SCA控制器 ！\r\n");
+	printf("发送 3 进入位置归零测试程序 ！\r\n");
+	printf("发送 4 进入正反转测试程序 ！\r\n");
+	printf("发送 5 进入高低速测试程序 ！\r\n");
+	printf("发送 6 将执行器关机 ！\r\n");
+	printf("发送 7 显示帮助信息 ！\r\n");
 }
 
 /**
@@ -75,6 +76,15 @@ static void CMD_Handler(uint8_t cmd)
 	switch(cmd)
 	{
 		case 1:
+			printf("\r\n执行轮询程序！\r\n");
+		
+			/* 调用轮询程序 */
+			SCA_Lookup();
+		
+			printf("轮询结束！\r\n");
+		break;
+		
+		case 2:
 			printf("\r\nSCA初始化！\r\n");
 		
 			/* 调用初始化程序 */
@@ -86,7 +96,7 @@ static void CMD_Handler(uint8_t cmd)
 			printf("SCA初始化结束！\r\n");
 			break;
 		
-		case 2:
+		case 3:
 			printf("\r\n进入位置归零测试！\r\n");
 		
 			/* 调用测试程序 位置归零 */
@@ -95,7 +105,7 @@ static void CMD_Handler(uint8_t cmd)
 			printf("位置归零测试结束！\r\n");
 			break;
 			
-		case 3:
+		case 4:
 			printf("\r\n进入正反转切换测试！\r\n");
 		
 			/* 调用测试程序 正反转切换 */
@@ -104,7 +114,7 @@ static void CMD_Handler(uint8_t cmd)
 			printf("正反转切换测试结束！\r\n");
 			break;
 		
-		case 4:
+		case 5:
 			printf("\r\n进入高低速切换测试！\r\n");
 			
 			/* 调用测试程序 高低速切换 */
@@ -113,7 +123,7 @@ static void CMD_Handler(uint8_t cmd)
 			printf("高低速切换测试结束！\r\n");
 			break;
 		
-		case 5:
+		case 6:
 			printf("\r\n执行器关机！\r\n");
 			
 			/* 关闭所有执行器 */

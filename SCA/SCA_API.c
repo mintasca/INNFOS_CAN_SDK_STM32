@@ -2,14 +2,15 @@
   ******************************************************************************
   * @文	件 ： SCA_API.c
   * @作	者 ： INNFOS Software Team
-  * @版	本 ： V1.5.0
-  * @日	期 ： 2019.8.16
+  * @版	本 ： V1.5.1
+  * @日	期 ： 2019.09.10
   * @摘	要 ： SCA 控制接口层
   ******************************************************************************/ 
 /* Update log --------------------------------------------------------------------*/
 //V1.1.0 2019.08.05 所有API调用接口改为ID，与PC SDK保持一致，增加所有参数的读写API
 //V1.5.0 2019.08.16 更改数据接收方式（中断接收），加入非阻塞通信功能，适应数据返回慢的
 //					情况。加入获取上次关机状态的API，优化开机流程。
+//V1.5.1 2019.09.10 增加轮询功能
 
 /* Includes ----------------------------------------------------------------------*/
 #include "bsp.h"
@@ -31,6 +32,39 @@ extern void warnBitAnaly(SCA_Handler_t* pSCA);
 /* Funcation defines -------------------------------------------------------------*/
 
 /****************************控制相关*******************************/
+
+/**
+  * @功	能	在CAN总线上查找存在的SCA，并打印找到的ID
+  * @参	数	canPort：需要轮询的总线
+  * @返	回	无
+  * @注	意	每台执行器都有自己的ID，若初次使用不知道
+  *			对应的ID，可用此函数查找
+  */
+void lookupActuators(CAN_Handler_t* canPort)
+{
+	uint16_t ID;
+	uint8_t Found = 0;
+	
+	 /* 使用一个列表项进行查询 */
+	SCA_Handler_List[0].Can = canPort;
+	
+	for(ID = 1; ID <= 0xFF; ID++)
+	{
+		/* 装载新的ID */
+		SCA_Handler_List[0].ID = ID;
+		
+		/* 收到该ID的心跳，则该ID存在 */
+		if(isOnline(ID,Block) == SCA_NoError)
+		{
+			/* 记录找到的个数，打印找到的ID */
+			Found++;
+			SCA_Debug("Found ID %d in canPort %d\r\n",ID,canPort->CanPort);
+		}
+	}
+	
+	/* 输出提示信息 */
+	SCA_Debug("canPort %d polling done ! Found %d Actuators altogether!\r\n\r\n",canPort->CanPort,Found);
+}
 
 /**
   * @功	能	初始化控制器，用于ID和CAN端口信息
