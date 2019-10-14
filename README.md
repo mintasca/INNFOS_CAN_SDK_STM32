@@ -15,7 +15,7 @@
 1、`SCA_Protocol.c/h`：INNFOS CAN 通信协议层，该协议层完成了数据帧封装，解包等步骤，使用CAN端口进行数据收发；</br>
 2、`SCA_API.c/h`：通信协议层的封装，包含了所有参数的读写API；</br>
 3、`SCA_APP.c/h`：演示程序；</br>
-4、`bsp_can.c/h`：STM32 CAN底层驱动程序，波特率固定1Mbps，位于BSP目录下；</br>
+4、`bsp_can.c/h`：STM32 CAN底层驱动程序，波特率固定1Mbps，位于BSP目录下。</br>
 
 ## 三、测试准备工作
 1、将程序下载至 STM32F429 单片机，若不同平台则需对程序进行移植;</br>
