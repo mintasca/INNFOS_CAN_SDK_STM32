@@ -114,7 +114,8 @@ uint8_t SCA_Write_3(SCA_Handler_t* pSCA, uint8_t cmd, float TxData)
   */
 uint8_t SCA_Write_4(SCA_Handler_t* pSCA, uint8_t cmd)
 {
-	uint8_t TxBuf[1] = {cmd};
+	uint8_t TxBuf[1];
+	TxBuf[0] = cmd;
 	return canTransmit(pSCA, TxBuf, 1);
 }
 
@@ -153,7 +154,8 @@ uint8_t SCA_Write_5(SCA_Handler_t* pSCA, uint8_t cmd, uint8_t TxData)
   */
 uint8_t SCA_Read(SCA_Handler_t* pSCA, uint8_t cmd)
 {
-	uint8_t TxBuf[1] = {cmd};
+	uint8_t TxBuf[1];
+	TxBuf[0] = cmd;
 	return canTransmit(pSCA, TxBuf, 1);
 }
 
