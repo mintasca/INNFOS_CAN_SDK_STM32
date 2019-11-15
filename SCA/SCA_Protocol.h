@@ -2,7 +2,7 @@
   ******************************************************************************
   * @文	件 ： SCA_Protocol.h
   * @作	者 ： INNFOS Software Team
-  * @版	本 ： V1.5.0
+  * @版	本 ： V1.5.2
   * @日	期 ： 2019.08.20
   * @摘	要 ： INNFOS CAN 通信协议层
   ******************************************************************************/ 
@@ -149,7 +149,7 @@
    len为发送数据的长度，返回0成功，返回其他失败 */
 typedef uint8_t (*Send_t)(uint8_t ID, uint8_t* msg, uint8_t len);
 								
-typedef struct CAN_Handler_Struc		//CAN端口句柄
+typedef struct				//CAN端口句柄
 {
 	//SCA 状态信息
 	uint8_t CanPort;		//使用的CAN端口号
@@ -158,7 +158,7 @@ typedef struct CAN_Handler_Struc		//CAN端口句柄
 
 }CAN_Handler_t;
 
-typedef struct SCA_Warn_Struc		//SCA报警信息
+typedef struct 						//SCA报警信息
 {
 	uint16_t Error_Code;			//错误代码
 	
@@ -182,7 +182,7 @@ typedef struct SCA_Warn_Struc		//SCA报警信息
 	SCA变量缓存，用于写入参数时保存目标参数，待成功后再写入句柄中
 	读取标志位在阻塞时使用，变量内容可根据项目需要进行裁剪或添加
  */
-typedef struct Para_Cache_Struc
+typedef struct 
 {
 	/* 基础信息 */
 	uint8_t ID;						//SCA 的ID号
@@ -299,7 +299,7 @@ typedef struct Para_Cache_Struc
 	SCA信息句柄，请勿随意更改其中数值，
 	变量内容可根据项目需要进行裁剪或添加
  */
-typedef struct SCA_Handler_Struc
+typedef struct 
 {
 	/* 协议数据变量区 */
 	uint8_t ID;						//SCA的ID号

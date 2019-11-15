@@ -2,7 +2,7 @@
   ******************************************************************************
   * @文	件 ： SCA_API.c
   * @作	者 ： INNFOS Software Team
-  * @版	本 ： V1.5.1
+  * @版	本 ： V1.5.3
   * @日	期 ： 2019.09.10
   * @摘	要 ： SCA 控制接口层
   ******************************************************************************/ 
@@ -11,6 +11,7 @@
 //V1.5.0 2019.08.16 更改数据接收方式（中断接收），加入非阻塞通信功能，适应数据返回慢的
 //					情况。加入获取上次关机状态的API，优化开机流程。
 //V1.5.1 2019.09.10 增加轮询功能
+//V1.5.3 2019.11.15 优化开关机流程
 
 /* Includes ----------------------------------------------------------------------*/
 #include "bsp.h"
@@ -18,10 +19,6 @@
 #include <string.h>
 
 /* Variable defines --------------------------------------------------------------*/
-
-#ifndef SCA_NUM_USE
-	#define SCA_NUM_USE	1	//默认只使用1个SCA
-#endif
 
 /* 每个SCA都需要一个句柄来保存对应的信息，根据实际使用数量进行定义 SCA_NUM_USE */
 SCA_Handler_t SCA_Handler_List[SCA_NUM_USE];
@@ -44,8 +41,12 @@ void lookupActuators(CAN_Handler_t* canPort)
 {
 	uint16_t ID;
 	uint8_t Found = 0;
+	SCA_Handler_t temp;
 	
-	 /* 使用一个列表项进行查询 */
+	/* 保存列表项的原始内容 */
+	temp = SCA_Handler_List[0];
+	
+	/* 使用一个列表项进行查询 */
 	SCA_Handler_List[0].Can = canPort;
 	
 	for(ID = 1; ID <= 0xFF; ID++)
@@ -61,6 +62,8 @@ void lookupActuators(CAN_Handler_t* canPort)
 			SCA_Debug("Found ID %d in canPort %d\r\n",ID,canPort->CanPort);
 		}
 	}
+	/* 恢复更改的内容 */
+	SCA_Handler_List[0] = temp;
 	
 	/* 输出提示信息 */
 	SCA_Debug("canPort %d polling done ! Found %d Actuators altogether!\r\n\r\n",canPort->CanPort,Found);
@@ -193,18 +196,41 @@ uint8_t isOnline(uint8_t id, uint8_t isBlock)
 /**
   * @功	能	检查执行器的使能状态
   * @参	数	id ：要检查的执行器id
+  *			isBlock：Block为阻塞式，Unblock为非阻塞式
   * @返	回	Actr_Enable：该执行器已使能
   *			Actr_Disable：该执行器未使能
+  *			
   */
-uint8_t isEnable(uint8_t id)
+uint8_t isEnable(uint8_t id, uint8_t isBlock)
 {
+	uint8_t Error;
+	uint32_t waitime = 0;
 	SCA_Handler_t* pSCA = NULL;
 	
 	/* 获取该ID的信息句柄 */
 	pSCA = getInstance(id);
 	if(pSCA == NULL)	return SCA_UnknownID;
 	
-	return pSCA->Power_State;
+	/* 先清空读取标志位 */
+	pSCA->paraCache.R_Power_State = Actr_Disable;
+	
+	/* 调用读取命令与SCA通信，结果放入对应的SCA句柄中 */
+	Error = SCA_Read(pSCA, R1_PowerState);
+	if(Error)	return Error;
+
+	/* 非阻塞 */
+	if(isBlock == Unblock)
+	{
+		/* 非阻塞发送后延时处理，防止总线过载 */
+		SCA_Delay(SendInterval);	
+		return Error;
+	}
+	
+	/* 阻塞式通信 */
+	while((pSCA->paraCache.R_Power_State != Actr_Enable) && (waitime++ < CanOvertime));
+	if(waitime >= CanOvertime)	return SCA_OperationFailed;
+	
+	return Error;
 }
 
 /**
@@ -270,9 +296,13 @@ uint8_t enableActuator(uint8_t id)
 	/* 获取该ID的信息句柄 */
 	pSCA = getInstance(id);
 	if(pSCA == NULL)	return SCA_UnknownID;
+	
+	/* 查询一次当前的使能状态 */
+	Error = isEnable(id, Block);
+	if(Error)	return Error;
 
 	/* 若当前已经处于目标状态，直接返回成功 */
-	if(pSCA->Power_State == Actr_Enable)	return SCA_NoError;
+	if(pSCA->Power_State == Actr_Enable)	goto PowerOn;
 	
 	/* 目标参数写入缓存待更新 */
 	pSCA->paraCache.Power_State = Actr_Enable;
@@ -285,6 +315,7 @@ uint8_t enableActuator(uint8_t id)
 	while((pSCA->Power_State != Actr_Enable) && (waitime++ < CanPowertime));
 	if(waitime >= CanPowertime)	return SCA_OperationFailed;			
 	
+	PowerOn:
 	/* 更新在线状态 */
 	pSCA->Online_State = Actr_Enable;
 	
@@ -324,6 +355,10 @@ uint8_t disableActuator(uint8_t id)
 	/* 获取该ID的信息句柄 */
 	pSCA = getInstance(id);
 	if(pSCA == NULL)	return SCA_UnknownID;
+	
+	/* 查询一次当前的使能状态 */
+	Error = isEnable(id, Block);
+	if(Error)	return Error;
 
 	/* 若当前已经处于目标状态，直接返回成功 */
 	if(pSCA->Power_State == Actr_Disable)	return SCA_NoError;

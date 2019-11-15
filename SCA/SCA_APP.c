@@ -84,8 +84,8 @@ void SCA_Init()
 void SCA_Homing()
 {
 	/* 未开机直接退出 */
-	if(isEnable(0x01) == Actr_Disable)	return;
-	if(isEnable(0x02) == Actr_Disable)	return;
+	if(pSCA_ID1->Power_State == Actr_Disable)	return;
+	if(pSCA_ID2->Power_State == Actr_Disable)	return;
 	
 	/* 切换执行器操作模式到梯形位置模式 */
 	activateActuatorMode(0x01,SCA_Profile_Position_Mode,Block);
@@ -122,8 +122,8 @@ void SCA_Homing()
 void SCA_Exp1()
 {
 	/* 未开机直接退出 */
-	if(isEnable(0x01) == Actr_Disable)	return;
-	if(isEnable(0x02) == Actr_Disable)	return;
+	if(pSCA_ID1->Power_State == Actr_Disable)	return;
+	if(pSCA_ID2->Power_State == Actr_Disable)	return;
 	
 	/* 归零 */
 	SCA_Homing();
@@ -154,8 +154,8 @@ void SCA_Exp1()
 void SCA_Exp2()
 {
 	/* 未开机直接退出 */
-	if(isEnable(0x01) == Actr_Disable)	return;
-	if(isEnable(0x02) == Actr_Disable)	return;
+	if(pSCA_ID1->Power_State == Actr_Disable)	return;
+	if(pSCA_ID2->Power_State == Actr_Disable)	return;
 	
 	/* 切换执行器操作模式到梯形速度模式 */
 	activateActuatorMode(0x01,SCA_Profile_Velocity_Mode,Block);

@@ -2,7 +2,7 @@
   ******************************************************************************
   * @文	件 ： SCA_API.h
   * @作	者 ： INNFOS Software Team
-  * @版	本 ： V1.5.1
+  * @版	本 ： V1.5.3
   * @日	期 ： 2019.09.10
   * @摘	要 ： SCA 控制接口层
   ******************************************************************************/ 
@@ -19,6 +19,9 @@
 #define CanPowertime	0xFFFFFF	//开关机阻塞超时（180MHZ）
 #define SendInterval	200			//非阻塞时的指令发送间隔
 #define SCA_Delay(x)	delay_us(x)	//延时接口，非阻塞时连续发送需延时
+#ifndef SCA_NUM_USE
+	#define SCA_NUM_USE	1	//默认只使用1个SCA
+#endif
 
 /* 调试接口 */
 #if SCA_DEBUGER
@@ -79,7 +82,7 @@ void enableAllActuators(void);
 void disableAllActuators(void);
 void regainAttrbute(uint8_t id,uint8_t isBlock);
 uint8_t isOnline(uint8_t id, uint8_t isBlock);
-uint8_t isEnable(uint8_t id);
+uint8_t isEnable(uint8_t id, uint8_t isBlock);
 uint8_t isUpdate(uint8_t id);
 uint8_t enableActuator(uint8_t id);
 uint8_t disableActuator(uint8_t id);
